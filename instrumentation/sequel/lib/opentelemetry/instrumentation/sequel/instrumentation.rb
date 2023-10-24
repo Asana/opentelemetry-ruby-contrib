@@ -24,7 +24,7 @@ module OpenTelemetry
           Gem.loaded_specs['sequel'].version >= MINIMUM_VERSION
         end
 
-        option :service_name, default: 'sequel', validate: :string
+        option "service_name", default: 'sequel', validate: :string
 
         private
 

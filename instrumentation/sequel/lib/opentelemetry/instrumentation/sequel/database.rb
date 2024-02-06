@@ -20,7 +20,6 @@ module OpenTelemetry
             response = nil
 
             tracer.in_span(Ext::SPAN_QUERY) do |span|
-              span.service = config[:service_name]
               span.name = opts[:query]
               span.set_attribute('query', opts[:query])
               span.set_attribute('component', Ext::SQL)

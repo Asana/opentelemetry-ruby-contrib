@@ -14,7 +14,7 @@ module OpenTelemetry
         class TracerPlugin < Delayed::Plugin
           class << self
             def instrument_enqueue(job, &block)
-              return block.call(job) unless enabled?
+              return yield(job) unless enabled?
 
               attributes = build_attributes(job)
               attributes['messaging.operation'] = 'publish'
@@ -28,7 +28,7 @@ module OpenTelemetry
             end
 
             def instrument_invoke(job, &block)
-              return block.call(job) unless enabled?
+              return yield(job) unless enabled?
 
               attributes = build_attributes(job)
               attributes['messaging.delayed_job.attempts'] = job.attempts if job.attempts
@@ -56,7 +56,6 @@ module OpenTelemetry
             end
 
             def add_events(span, job)
-              span.add_event('created_at', timestamp: job.created_at)
               span.add_event('run_at', timestamp: job.run_at) if job.run_at
               span.add_event('locked_at', timestamp: job.locked_at) if job.locked_at
             end
@@ -84,8 +83,10 @@ module OpenTelemetry
           end
 
           callbacks do |lifecycle|
+            # rubocop:disable Performance/MethodObjectAsBlock
             lifecycle.around(:enqueue, &method(:instrument_enqueue))
             lifecycle.around(:invoke_job, &method(:instrument_invoke))
+            # rubocop:enable Performance/MethodObjectAsBlock
           end
         end
       end

@@ -1,5 +1,23 @@
 # Release History: opentelemetry-instrumentation-dalli
 
+### v0.25.3 / 2024-06-18
+
+* FIXED: Relax otel common gem constraints
+
+### v0.25.2 / 2024-05-09
+
+* FIXED: Untrace entire request
+
+### v0.25.1 / 2024-04-30
+
+* FIXED: Bundler conflict warnings
+
+### v0.25.0 / 2023-10-16
+
+* BREAKING CHANGE: Obfuscation for mysql2, dalli and postgresql as default option for db_statement
+
+* ADDED: Obfuscation for mysql2, dalli and postgresql as default option for db_statement
+
 ### v0.24.2 / 2023-07-21
 
 * ADDED: Update `opentelemetry-common` from [0.19.3 to 0.20.0](https://github.com/open-telemetry/opentelemetry-ruby-contrib/pull/537)

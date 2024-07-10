@@ -28,8 +28,8 @@ module OpenTelemetry
         option :url_quantization,         default: nil,   validate: :callable
         option :untraced_requests,        default: nil,   validate: :callable
         option :response_propagators,     default: [],    validate: :array
-        # This option is only valid for applicaitons using Rack 2.0 or greater
-        option :use_rack_events,          default: false, validate: :boolean
+        # This option is only valid for applications using Rack 2.0 or greater
+        option :use_rack_events,          default: true, validate: :boolean
 
         # Temporary Helper for Sinatra and ActionPack middleware to use during installation
         #
@@ -55,7 +55,7 @@ module OpenTelemetry
         end
 
         def config_options(user_config)
-          config = super(user_config)
+          config = super
           config[:allowed_rack_request_headers] = config[:allowed_request_headers].compact.each_with_object({}) do |header, memo|
             key = header.to_s.upcase.gsub(/[-\s]/, '_')
             case key

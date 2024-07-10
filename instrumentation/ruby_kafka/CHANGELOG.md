@@ -1,8 +1,16 @@
 # Release History: opentelemetry-instrumentation-ruby_kafka
 
+### v0.21.2 / 2024-07-02
+
+* DOCS: Fix CHANGELOGs to reflect a past breaking change
+
+### v0.21.1 / 2024-04-30
+
+* FIXED: Bundler conflict warnings
+
 ### v0.21.0 / 2023-09-07
 
-* FIXED: Align messaging instrumentation operation names
+* BREAKING CHANGE: Align messaging instrumentation operation names [#648](https://github.com/open-telemetry/opentelemetry-ruby-contrib/pull/648)
 
 ### v0.20.2 / 2023-08-09
 

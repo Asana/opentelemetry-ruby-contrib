@@ -1,9 +1,33 @@
 # Release History: opentelemetry-instrumentation-sidekiq
 
+### v0.25.6 / 2024-07-02
+
+* DOCS: Fix CHANGELOGs to reflect a past breaking change
+
+### v0.25.5 / 2024-06-18
+
+* FIXED: Relax otel common gem constraints
+
+### v0.25.4 / 2024-05-09
+
+* FIXED: Untrace entire request
+
+### v0.25.3 / 2024-04-30
+
+* FIXED: Bundler conflict warnings
+
+### v0.25.2 / 2024-02-08
+
+* DOCS: Fix doc for sidekiq options.
+
+### v0.25.1 / 2024-02-08
+
+* DOCS: ✏️ Sidekiq instrumentation options
+
 ### v0.25.0 / 2023-09-07
 
-* FIXED: Align messaging instrumentation operation names
-
+* BREAKING CHANGE: Align messaging instrumentation operation names [#648](https://github.com/open-telemetry/opentelemetry-ruby-contrib/pull/648)
+*
 ### v0.24.4 / 2023-08-07
 
 * FIXED: Allow traces inside jobs while avoiding Redis noise

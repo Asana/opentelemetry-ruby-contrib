@@ -1,5 +1,25 @@
 # Release History: opentelemetry-instrumentation-ethon
 
+### v0.21.7 / 2024-06-18
+
+* FIXED: Relax otel common gem constraints
+
+### v0.21.6 / 2024-06-12
+
+* FIXED: Add net.peer.name to ethon
+
+### v0.21.5 / 2024-05-09
+
+* FIXED: Untrace entire request
+
+### v0.21.4 / 2024-04-30
+
+* FIXED: Bundler conflict warnings
+
+### v0.21.3 / 2023-11-23
+
+* CHANGED: Applied Rubocop Performance Recommendations [#727](https://github.com/open-telemetry/opentelemetry-ruby-contrib/pull/727)
+
 ### v0.21.2 / 2023-07-21
 
 * ADDED: Update `opentelemetry-common` from [0.19.3 to 0.20.0](https://github.com/open-telemetry/opentelemetry-ruby-contrib/pull/537)

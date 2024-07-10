@@ -4,6 +4,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+require 'opentelemetry-helpers-sql-obfuscation'
 require_relative '../constants'
 require_relative '../lru_cache'
 
@@ -49,6 +50,16 @@ module OpenTelemetry
           end
 
           private
+
+          def obfuscate_sql(sql)
+            return sql unless config[:db_statement] == :obfuscate
+
+            OpenTelemetry::Helpers::SqlObfuscation.obfuscate_sql(
+              sql,
+              obfuscation_limit: config[:obfuscation_limit],
+              adapter: :postgres
+            )
+          end
 
           def tracer
             PG::Instrumentation.instance.tracer
@@ -101,7 +112,9 @@ module OpenTelemetry
 
           def extract_operation(sql)
             # From: https://github.com/open-telemetry/opentelemetry-js-contrib/blob/9244a08a8d014afe26b82b91cf86e407c2599d73/plugins/node/opentelemetry-instrumentation-pg/src/utils.ts#L35
-            sql.to_s.split[0].to_s.upcase
+            # Ignores prepend comment
+            comment_regex = %r{\A\/\*.*?\*\/}m
+            sql.to_s.sub(comment_regex, '').split[0].to_s.upcase
           end
 
           def span_name(operation)
@@ -110,34 +123,6 @@ module OpenTelemetry
 
           def validated_operation(operation)
             operation if PG::Constants::SQL_COMMANDS.include?(operation)
-          end
-
-          def obfuscate_sql(sql)
-            return sql unless config[:db_statement] == :obfuscate
-
-            if sql.size > config[:obfuscation_limit]
-              first_match_index = sql.index(generated_postgres_regex)
-              truncation_message = "SQL truncated (> #{config[:obfuscation_limit]} characters)"
-              return truncation_message unless first_match_index
-
-              truncated_sql = sql[..first_match_index - 1]
-              return "#{truncated_sql}...\n#{truncation_message}"
-            end
-
-            # From:
-            # https://github.com/newrelic/newrelic-ruby-agent/blob/9787095d4b5b2d8fcaf2fdbd964ed07c731a8b6b/lib/new_relic/agent/database/obfuscator.rb
-            # https://github.com/newrelic/newrelic-ruby-agent/blob/9787095d4b5b2d8fcaf2fdbd964ed07c731a8b6b/lib/new_relic/agent/database/obfuscation_helpers.rb
-            obfuscated = sql.gsub(generated_postgres_regex, '?')
-            obfuscated = 'Failed to obfuscate SQL query - quote characters remained after obfuscation' if PG::Constants::UNMATCHED_PAIRS_REGEX.match(obfuscated)
-
-            obfuscated
-          rescue StandardError => e
-            OpenTelemetry.handle_error(message: 'Failed to obfuscate SQL', exception: e)
-            'OpenTelemetry error: failed to obfuscate sql'
-          end
-
-          def generated_postgres_regex
-            @generated_postgres_regex ||= Regexp.union(PG::Constants::POSTGRES_COMPONENTS.map { |component| PG::Constants::COMPONENTS_REGEX_MAP[component] })
           end
 
           def client_attributes

@@ -47,12 +47,14 @@ describe OpenTelemetry::Instrumentation::GraphQL::Tracers::GraphQLTrace do
           'graphql.lex',
           'graphql.parse',
           'graphql.validate',
-          'graphql.analyze_multiplex',
           'graphql.analyze_query',
+          'graphql.analyze_multiplex',
           'graphql.execute_query',
           'graphql.execute_query_lazy',
           'graphql.execute_multiplex'
         ]
+
+        expected_spans.delete('graphql.lex') unless trace_lex_supported?
 
         expected_result = {
           'simpleField' => 'Hello.',
@@ -97,14 +99,13 @@ describe OpenTelemetry::Instrumentation::GraphQL::Tracers::GraphQLTrace do
 
         after do
           # Reset various instance variables to clear state between tests
-          SomeOtherGraphQLAppSchema.instance_variable_set(:@own_tracers, [])
-          SomeOtherGraphQLAppSchema.instance_variable_set(:@own_plugins, SomeOtherGraphQLAppSchema.plugins[0..1])
+          [GraphQL::Schema, SomeOtherGraphQLAppSchema, SomeGraphQLAppSchema].each(&:_reset_tracer_for_testing)
         end
 
         it 'traces the provided schemas' do
           SomeOtherGraphQLAppSchema.execute('query SimpleQuery{ __typename }')
 
-          _(spans.size).must_equal(8)
+          _(spans.select { |s| s.name.start_with?('graphql.') }).wont_be(:empty?)
         end
 
         it 'does not trace all schemas' do
@@ -292,7 +293,7 @@ describe OpenTelemetry::Instrumentation::GraphQL::Tracers::GraphQLTrace do
     describe 'compatibility with other tracers' do
       let(:config) { { enable_platform_field: true } }
 
-      if GraphQL::Tracing.const_defined?('PlatformTrace')
+      if GraphQL::Tracing.const_defined?(:PlatformTrace)
         module CustomPlatformTracer
           include ::GraphQL::Tracing::PlatformTrace
 

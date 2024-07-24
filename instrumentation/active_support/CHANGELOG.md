@@ -1,5 +1,37 @@
 # Release History: opentelemetry-instrumentation-active_support
 
+### v0.6.0 / 2024-07-02
+
+* BREAKING CHANGE: Custom ActiveSupport Span Names
+
+* ADDED: Custom ActiveSupport Span Names
+
+### v0.5.3 / 2024-06-20
+
+* FIXED: Include span kind in ActiveSupport Instrumentation helper
+
+### v0.5.2 / 2024-06-20
+
+* ADDED: ActiveSupport user specified span kind
+
+### v0.5.1 / 2023-11-23
+
+* CHANGED: Applied Rubocop Performance Recommendations [#727](https://github.com/open-telemetry/opentelemetry-ruby-contrib/pull/727)
+
+### v0.5.0 / 2023-11-22
+
+* BREAKING CHANGE: Drop Rails 6.0 EOL
+
+* ADDED: Drop Rails 6.0 EOL
+
+### v0.4.4 / 2023-10-31
+
+* FIXED: Remove call to ActiveSupport::Notifications.notifier#synchronize deprecated in Rails 7.2
+
+### v0.4.3 / 2023-10-16
+
+* FIXED: Add Rails 7.1 compatibility
+
 ### v0.4.2 / 2023-09-07
 
 FIXED: Reduce Object allocation

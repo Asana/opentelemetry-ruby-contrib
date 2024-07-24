@@ -1,5 +1,28 @@
 # Release History: opentelemetry-instrumentation-excon
 
+### v0.22.3 / 2024-06-18
+
+* FIXED: Relax otel common gem constraints
+* FIXED: Add `http.url` to Excon instrumentation
+
+### v0.22.2 / 2024-05-09
+
+* FIXED: Untrace entire request
+
+### v0.22.1 / 2024-04-30
+
+* FIXED: Bundler conflict warnings
+
+### v0.22.0 / 2023-11-28
+
+* BREAKING CHANGE: Add a connect span to excon
+
+* ADDED: Add a connect span to excon
+
+### v0.21.3 / 2023-11-23
+
+* CHANGED: Applied Rubocop Performance Recommendations [#727](https://github.com/open-telemetry/opentelemetry-ruby-contrib/pull/727)
+
 ### v0.21.2 / 2023-07-21
 
 * ADDED: Update `opentelemetry-common` from [0.19.3 to 0.20.0](https://github.com/open-telemetry/opentelemetry-ruby-contrib/pull/537)

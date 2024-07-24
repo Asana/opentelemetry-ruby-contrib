@@ -272,7 +272,7 @@ describe OpenTelemetry::Instrumentation::Grape do
       it 'sets span status to error' do
         _(span.name).must_equal expected_span_name
         _(span.status.code).must_equal OpenTelemetry::Trace::Status::ERROR
-        _(span.status.description).must_equal "Unhandled exception of type: #{expected_error_type}"
+        _(span.status.description).must_equal expected_error_type
       end
 
       it 'records the exception event' do
@@ -316,7 +316,7 @@ describe OpenTelemetry::Instrumentation::Grape do
       it 'sets span status to error' do
         _(span.name).must_equal expected_span_name
         _(span.status.code).must_equal OpenTelemetry::Trace::Status::ERROR
-        _(span.status.description).must_equal "Unhandled exception of type: #{expected_error_type}"
+        _(span.status.description).must_equal expected_error_type
       end
 
       it 'records the exception event' do
@@ -416,6 +416,57 @@ describe OpenTelemetry::Instrumentation::Grape do
 
       it 'does not add the endpoint_render event to the span' do
         _(events_per_name('grape.endpoint_render').length).must_equal 0
+      end
+    end
+
+    describe 'when install_rack is set to false' do
+      class BasicAPI < Grape::API
+        format :json
+        get :hello do
+          { message: 'Hello, world!' }
+        end
+      end
+
+      let(:config) { { install_rack: false } }
+
+      let(:app) do
+        builder = Rack::Builder.app do
+          run BasicAPI
+        end
+        Rack::MockRequest.new(builder)
+      end
+
+      let(:request_path) { '/hello' }
+      let(:expected_span_name) { 'HTTP GET /hello' }
+
+      describe 'missing rack installation' do
+        it 'disables tracing' do
+          app.get request_path
+          _(exporter.finished_spans).must_be_empty
+        end
+      end
+
+      describe 'when rack is manually installed' do
+        let(:app) do
+          build_rack_app(BasicAPI)
+        end
+
+        before do
+          OpenTelemetry::Instrumentation::Rack::Instrumentation.instance.install
+        end
+
+        it 'creates a span' do
+          app.get request_path
+          _(exporter.finished_spans.first.attributes).must_equal(
+            'code.namespace' => 'BasicAPI',
+            'http.method' => 'GET',
+            'http.host' => 'unknown',
+            'http.scheme' => 'http',
+            'http.target' => '/hello',
+            'http.route' => '/hello',
+            'http.status_code' => 200
+          )
+        end
       end
     end
   end

@@ -51,7 +51,7 @@ describe OpenTelemetry::Instrumentation::PG::Instrumentation do
     let(:user) { ENV.fetch('TEST_POSTGRES_USER', 'postgres') }
     let(:dbname) { ENV.fetch('TEST_POSTGRES_DB', 'postgres') }
     let(:password) { ENV.fetch('TEST_POSTGRES_PASSWORD', 'postgres') }
-
+    let(:config) { { db_statement: :include } }
     before do
       instrumentation.install(config)
     end
@@ -175,6 +175,18 @@ describe OpenTelemetry::Instrumentation::PG::Instrumentation do
         _(span.attributes['net.peer.name']).must_equal host.to_s
         _(span.attributes['net.peer.port']).must_equal port.to_i
       end
+    end
+
+    it 'ignores prepend comment to extract operation' do
+      client.query('/* comment */ SELECT 1')
+
+      _(span.name).must_equal 'SELECT postgres'
+      _(span.attributes['db.system']).must_equal 'postgresql'
+      _(span.attributes['db.name']).must_equal 'postgres'
+      _(span.attributes['db.statement']).must_equal '/* comment */ SELECT 1'
+      _(span.attributes['db.operation']).must_equal 'SELECT'
+      _(span.attributes['net.peer.name']).must_equal host.to_s
+      _(span.attributes['net.peer.port']).must_equal port.to_i
     end
 
     it 'only caches 50 prepared statement names' do
@@ -346,7 +358,7 @@ describe OpenTelemetry::Instrumentation::PG::Instrumentation do
         client.query('SELECT 1')
 
         _(span.attributes['net.peer.name']).must_equal host
-        _(span.attributes['net.peer.port']).must_equal port.to_i if PG.const_defined?('DEF_PORT')
+        _(span.attributes['net.peer.port']).must_equal port.to_i if PG.const_defined?(:DEF_PORT)
       end
     end
   end unless ENV['OMIT_SERVICES']

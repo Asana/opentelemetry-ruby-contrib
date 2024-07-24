@@ -16,9 +16,9 @@ module OpenTelemetry
 
             def request(req, body = nil, &block)
               # Do not trace recursive call for starting the connection
-              return super(req, body, &block) unless started?
+              return super unless started?
 
-              return super(req, body, &block) if untraced?
+              return super if untraced?
 
               attributes = {
                 OpenTelemetry::SemanticConventions::Trace::HTTP_METHOD => req.method,
@@ -35,7 +35,7 @@ module OpenTelemetry
               ) do |span|
                 OpenTelemetry.propagation.inject(req)
 
-                super(req, body, &block).tap do |response|
+                super.tap do |response|
                   annotate_span_with_response!(span, response)
                 end
               end
@@ -78,7 +78,7 @@ module OpenTelemetry
               status_code = response.code.to_i
 
               span.set_attribute(OpenTelemetry::SemanticConventions::Trace::HTTP_STATUS_CODE, status_code)
-              span.status = OpenTelemetry::Trace::Status.error unless (100..399).include?(status_code.to_i)
+              span.status = OpenTelemetry::Trace::Status.error unless (100..399).cover?(status_code.to_i)
             end
 
             def tracer
@@ -86,11 +86,19 @@ module OpenTelemetry
             end
 
             def untraced?
+              untraced_context? || untraced_host?
+            end
+
+            def untraced_host?
               return true if Net::HTTP::Instrumentation.instance.config[:untraced_hosts]&.any? do |host|
                 host.is_a?(Regexp) ? host.match?(@address) : host == @address
               end
 
               false
+            end
+
+            def untraced_context?
+              OpenTelemetry::Common::Utilities.untraced?
             end
           end
         end

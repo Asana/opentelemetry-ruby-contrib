@@ -42,7 +42,7 @@ module OpenTelemetry
                 @otel_span.status = OpenTelemetry::Trace::Status.error("Request has failed: #{message}")
               else
                 @otel_span.set_attribute('http.status_code', response_code)
-                @otel_span.status = OpenTelemetry::Trace::Status.error unless (100..399).include?(response_code.to_i)
+                @otel_span.status = OpenTelemetry::Trace::Status.error unless (100..399).cover?(response_code.to_i)
               end
             ensure
               @otel_span&.finish
@@ -87,14 +87,31 @@ module OpenTelemetry
               'http.method' => method
             }
 
-            http_url = OpenTelemetry::Common::Utilities.cleanse_url(url)
-            instrumentation_attrs['http.url'] = http_url if http_url
+            uri = _otel_cleanse_uri(url)
+            if uri
+              instrumentation_attrs['http.url'] = uri.to_s
+              instrumentation_attrs['net.peer.name'] = uri.host if uri.host
+            end
 
             config = Ethon::Instrumentation.instance.config
             instrumentation_attrs['peer.service'] = config[:peer_service] if config[:peer_service]
             instrumentation_attrs.merge!(
               OpenTelemetry::Common::HTTP::ClientContext.attributes
             )
+          end
+
+          # Returns a URL string with userinfo removed.
+          #
+          # @param [String] url The URL string to cleanse.
+          #
+          # @return [String] the cleansed URL.
+          def _otel_cleanse_uri(url)
+            cleansed_url = URI.parse(url)
+            cleansed_url.password = nil
+            cleansed_url.user = nil
+            cleansed_url
+          rescue URI::Error
+            nil
           end
 
           def tracer

@@ -10,6 +10,14 @@ updates:
   schedule:
     interval: weekly
 - package-ecosystem: bundler
+  directory: "/helpers/mysql"
+  schedule:
+    interval: weekly
+- package-ecosystem: bundler
+  directory: "/helpers/sql-obfuscation"
+  schedule:
+    interval: weekly
+- package-ecosystem: bundler
   directory: "/propagator/ottrace"
   schedule:
     interval: weekly
@@ -79,6 +87,10 @@ updates:
     interval: weekly
 - package-ecosystem: bundler
   directory: "/instrumentation/aws_sdk"
+  schedule:
+    interval: weekly
+- package-ecosystem: bundler
+  directory: "/instrumentation/aws_lambda"
   schedule:
     interval: weekly
 - package-ecosystem: bundler
@@ -171,10 +183,6 @@ updates:
     interval: weekly
 - package-ecosystem: bundler
   directory: "/instrumentation/rails"
-  schedule:
-    interval: weekly
-- package-ecosystem: bundler
-  directory: "/resource_detectors"
   schedule:
     interval: weekly
 - package-ecosystem: bundler
